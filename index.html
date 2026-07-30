@@ -1002,6 +1002,121 @@ mark {
 @media (min-width: 700px) {
   .stats-grid { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ===== Voice entry ===== */
+.voice-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px;
+  margin-bottom: 14px;
+  border: 1.5px dashed var(--accent, #d97706);
+  background: transparent;
+  color: var(--accent, #d97706);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.voice-btn svg { width: 19px; height: 19px; }
+.voice-btn:active { opacity: 0.7; }
+
+.voice-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 15, 15, 0.72);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fade-in 0.15s ease;
+}
+.voice-panel {
+  background: var(--card, #fff);
+  color: var(--ink, #111);
+  border-radius: 18px;
+  padding: 28px 22px 22px;
+  width: min(92vw, 360px);
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+}
+.voice-mic-circle {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: #dc2626;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.voice-mic-circle svg { width: 34px; height: 34px; }
+.voice-mic-circle.listening::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 3px solid #dc2626;
+  animation: voice-ring 1.4s ease-out infinite;
+}
+@keyframes voice-ring {
+  0% { transform: scale(0.85); opacity: 0.9; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+.voice-status { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.voice-transcript {
+  min-height: 40px;
+  font-size: 15px;
+  color: var(--ink-2, #555);
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+.voice-hint { font-size: 11.5px; color: var(--ink-3, #999); margin-bottom: 16px; line-height: 1.5; }
+.voice-cancel {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: var(--bg-2, #f0f0f0);
+  color: var(--ink, #111);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.voice-summary {
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+  border-radius: var(--radius);
+  padding: 11px 13px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  margin-bottom: 14px;
+  position: relative;
+}
+@media (prefers-color-scheme: dark) {
+  .voice-summary { background: #052e22; border-color: #065f46; color: #6ee7b7; }
+}
+.voice-summary b { font-weight: 700; }
+.voice-summary-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.7;
+}
+.voice-summary-close svg { width: 14px; height: 14px; }
 </style>
 </head>
 <body>
@@ -1085,6 +1200,7 @@ const ICONS = {
   eyeOff: '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>',
   calendar: '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>',
   bell: '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>',
+  mic: '<svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>',
   google: '<svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571.001-.001.002-.001.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>'
 };
 
@@ -2091,8 +2207,21 @@ function renderAddForm() {
   const cats = state.categories[f.type] || [];
   if (!f.categoryId || !cats.find(c => c.id === f.categoryId)) f.categoryId = cats[0]?.id || '';
   
+  const voiceSummaryHtml = _voiceInfo ? `
+    <div class="voice-summary">
+      <button class="voice-summary-close" id="f-voice-summary-close" type="button">${ICONS.close}</button>
+      <b>🎙 Άκουσα:</b> «${escapeHtml(_voiceInfo.transcript)}»<br>
+      ${_voiceInfo.parts.map(p => escapeHtml(p)).join(' · ')}<br>
+      <span style="opacity:0.8">Έλεγξε τα στοιχεία και πάτα Καταχώρηση.</span>
+    </div>
+  ` : '';
+
   return `
     <div class="card">
+      ${voiceSummaryHtml}
+      ${voiceSupported() ? `
+        <button class="voice-btn" id="f-voice-btn" type="button">${ICONS.mic} Φωνητική καταχώρηση</button>
+      ` : ''}
       <div class="type-toggle">
         <button class="type-btn ${f.type==='income'?'active-in':''}" data-form-type="income">${ICONS.arrowDown} Έσοδο</button>
         <button class="type-btn ${f.type==='expense'?'active-out':''}" data-form-type="expense">${ICONS.arrowUp} Έξοδο</button>
@@ -3221,6 +3350,11 @@ function attachHandlers() {
   
   const saveBtn = document.getElementById('f-save');
   if (saveBtn) saveBtn.onclick = saveTransaction;
+
+  const voiceBtn = document.getElementById('f-voice-btn');
+  if (voiceBtn) voiceBtn.onclick = startVoiceEntry;
+  const voiceSummaryClose = document.getElementById('f-voice-summary-close');
+  if (voiceSummaryClose) voiceSummaryClose.onclick = () => { _voiceInfo = null; render(); };
   
   const delBtn = document.getElementById('f-delete');
   if (delBtn) delBtn.onclick = () => {
@@ -3296,11 +3430,353 @@ function saveTransaction() {
   
   const keepType = state.form.type, keepAccount = state.form.accountId;
   state.form = { type: keepType, accountId: keepAccount, categoryId: '', amount: '', note: '', date: todayISO(), paymentMethod: 'cash', bankId: '' };
-  
+  _voiceInfo = null;
+
   saveState();
   state.ui.activeTab = 'dashboard';
   render();
   showToast(wasEdit ? 'Ενημερώθηκε' : 'Καταχωρήθηκε');
+}
+
+// ============ VOICE ENTRY (Φωνητική καταχώρηση) ============
+let _voiceInfo = null;      // { transcript, parts[] } — banner στη φόρμα
+let _voiceRec = null;
+let _voiceCancelled = false;
+
+function voiceSupported() {
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+
+// Κανονικοποίηση ελληνικών: πεζά, χωρίς τόνους, τελικό ς → σ
+function _vNorm(s) {
+  return String(s || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/ς/g, 'σ');
+}
+
+const _GR_UNITS = {'μηδεν':0,'ενα':1,'εναν':1,'ενοσ':1,'μια':1,'μιαν':1,'δυο':2,'τρια':3,'τρεισ':3,'τεσσερα':4,'τεσσερισ':4,'πεντε':5,'εξι':6,'εφτα':7,'επτα':7,'οκτω':8,'οχτω':8,'εννεα':9,'εννια':9,'δεκα':10,'εντεκα':11,'ενδεκα':11,'δωδεκα':12,'δεκατρια':13,'δεκατρεισ':13,'δεκατεσσερα':14,'δεκατεσσερισ':14,'δεκαπεντε':15,'δεκαεξι':16,'δεκαεφτα':17,'δεκαεπτα':17,'δεκαοκτω':18,'δεκαοχτω':18,'δεκαεννεα':19,'δεκαεννια':19};
+const _GR_TENS = {'εικοσι':20,'τριαντα':30,'σαραντα':40,'πενηντα':50,'εξηντα':60,'εβδομηντα':70,'ογδοντα':80,'ενενηντα':90};
+const _GR_HUNDREDS = {'εκατο':100,'εκατον':100,'διακοσια':200,'διακοσιεσ':200,'τριακοσια':300,'τριακοσιεσ':300,'τετρακοσια':400,'τετρακοσιεσ':400,'πεντακοσια':500,'πεντακοσιεσ':500,'εξακοσια':600,'εξακοσιεσ':600,'εφτακοσια':700,'επτακοσια':700,'εφτακοσιεσ':700,'επτακοσιεσ':700,'οκτακοσια':800,'οχτακοσια':800,'οκτακοσιεσ':800,'εννιακοσια':900,'εννιακοσιεσ':900};
+const _GR_MONTHS = {'ιανουαριου':1,'φεβρουαριου':2,'μαρτιου':3,'απριλιου':4,'μαιου':5,'ιουνιου':6,'ιουλιου':7,'αυγουστου':8,'σεπτεμβριου':9,'οκτωβριου':10,'νοεμβριου':11,'δεκεμβριου':12};
+
+const _V_INCOME_WORDS = ['εσοδο','εσοδα','εισπραξη','εισπραξεισ','εισεπραξα','πληρωθηκα','ελαβα','πωλησα','εισοδημα','αμοιβη'];
+const _V_EXPENSE_WORDS = ['εξοδο','εξοδα','πληρωσα','αγορασα','αγορα','εδωσα','ψωνια','δαπανη'];
+const _V_STOPWORDS = ['και','με','σε','στο','στη','στην','στον','στα','στουσ','για','απο','το','τα','τη','την','τον','του','τησ','των','ο','η','οι','ευρω','ευρο','λεπτα','λεπτο','ειναι','ηταν','βαλε','καταχωρησε','καταχωρισε','προσθεσε','γραψε','κανε','εκανα','εχω','σημειωση','περασε','πληρωμη'];
+
+// Συνώνυμα → λέξη-κλειδί κατηγορίας
+const _V_CAT_SYNONYMS = {
+  'βενζινη':'καυσιμα','βενζινα':'καυσιμα','πετρελαιο':'καυσιμα','ντιζελ':'καυσιμα','diesel':'καυσιμα','βενζιναδικο':'καυσιμα','διοδια':'μεταφορικα','ταξι':'μεταφορικα','κουριερ':'μεταφορικα',
+  'ρευμα':'δεκο','δεη':'δεκο','νερο':'δεκο','ευδαπ':'δεκο','τηλεφωνο':'δεκο','ιντερνετ':'δεκο','κινητο':'δεκο','κοινοχρηστα':'δεκο','λογαριασμοσ':'λογαριασμοι','λογαριασμο':'λογαριασμοι',
+  'ενοικιο':'ενοικια','νοικι':'ενοικια',
+  'μισθοσ':'μισθοδοσια','μισθουσ':'μισθοδοσια','ενσημα':'μισθοδοσια','ικα':'μισθοδοσια','εφκα':'μισθοδοσια',
+  'φοροσ':'φοροι','φορουσ':'φοροι','εφορια':'φοροι',
+  'εμπορευμα':'εμπορευμα','εμπορευματα':'εμπορευμα','προμηθευτησ':'προμηθειεσ','προμηθευτη':'προμηθειεσ',
+  'επισκευη':'επισκευεσ','σερβισ':'συντηρηση',
+  'πωληση':'πωλησεισ','πουλησα':'πωλησεισ','υπηρεσια':'υπηρεσιεσ','επιστροφη':'επιστροφεσ'
+};
+
+function _vTokScore(a, b) {
+  if (!a || !b) return 0;
+  if (a === b) return a.length + 2;
+  if (a.length >= 4 && b.length >= 4) {
+    const n = Math.min(a.length, b.length, 5);
+    if (a.slice(0, n) === b.slice(0, n)) return n;
+  }
+  return 0;
+}
+
+// Fuzzy αντιστοίχιση ονόματος (κατηγορία / επιχείρηση / τράπεζα) στα tokens
+function _vMatchName(toks, items, useSynonyms) {
+  let best = null, bestScore = 0;
+  items.forEach(it => {
+    const nameToks = _vNorm(it.name).split(/[^a-zα-ω0-9]+/).filter(w => w.length >= 3);
+    let score = 0;
+    toks.forEach(t => {
+      if (t.used || !t.tok || t.tok.length < 3) return;
+      const cands = [t.tok];
+      if (useSynonyms && _V_CAT_SYNONYMS[t.tok]) cands.push(_V_CAT_SYNONYMS[t.tok]);
+      let tBest = 0;
+      nameToks.forEach(nt => cands.forEach(c => { tBest = Math.max(tBest, _vTokScore(c, nt)); }));
+      score += tBest;
+    });
+    if (score > bestScore) { bestScore = score; best = it; }
+  });
+  if (!best || bestScore < 4) return null;
+  // μαρκάρισμα των tokens που ταίριαξαν στον νικητή
+  const nameToks = _vNorm(best.name).split(/[^a-zα-ω0-9]+/).filter(w => w.length >= 3);
+  toks.forEach(t => {
+    if (t.used || !t.tok || t.tok.length < 3) return;
+    const cands = [t.tok];
+    if (useSynonyms && _V_CAT_SYNONYMS[t.tok]) cands.push(_V_CAT_SYNONYMS[t.tok]);
+    if (nameToks.some(nt => cands.some(c => _vTokScore(c, nt) > 0))) t.used = true;
+  });
+  return best;
+}
+
+// Διαβάζει αριθμό (ψηφία ή ελληνικές λέξεις) ξεκινώντας από θέση i → {value, consumed} ή null
+function _vNumAt(toks, i) {
+  if (!toks[i] || toks[i].used) return null;
+  const digits = toks[i].tok.replace(/,/g, '.').replace(/[^\d.]/g, '');
+  if (/^\d+(\.\d+)?$/.test(digits) && digits !== '.') {
+    return { value: parseFloat(digits), consumed: 1 };
+  }
+  let total = 0, cur = 0, j = i, matched = false;
+  while (j < toks.length && !toks[j].used) {
+    const w = toks[j].tok;
+    if (_GR_HUNDREDS[w] != null) cur += _GR_HUNDREDS[w];
+    else if (_GR_TENS[w] != null) cur += _GR_TENS[w];
+    else if (_GR_UNITS[w] != null) cur += _GR_UNITS[w];
+    else if (w === 'χιλια' || w === 'χιλιεσ' || w === 'χιλιαδεσ') { total += (cur || 1) * 1000; cur = 0; }
+    else break;
+    matched = true; j++;
+  }
+  if (!matched) return null;
+  return { value: total + cur, consumed: j - i };
+}
+
+function _vMarkUsed(toks, i, n) { for (let k = i; k < i + n && k < toks.length; k++) toks[k].used = true; }
+
+// Αναλύει τη φωνητική εντολή σε στοιχεία κίνησης
+function parseVoiceCommand(raw) {
+  const words = raw.trim().replace(/€/g, ' ευρώ ').replace(/[.;!?·]/g, ' ').split(/\s+/).filter(Boolean);
+  const toks = words.map(orig => ({ orig, tok: _vNorm(orig).replace(/[^a-zα-ω0-9,.]/g, ''), used: false }));
+  const res = { amount: null, type: null, method: null, bankId: '', categoryId: null, accountId: null, date: todayISO(), note: '' };
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+
+  // --- 1. Ημερομηνία ---
+  for (let i = 0; i < toks.length; i++) {
+    if (toks[i].used) continue;
+    const w = toks[i].tok;
+    if (w === 'σημερα') { toks[i].used = true; break; }
+    if (w === 'χθεσ' || w === 'εχθεσ' || w === 'χτεσ') {
+      const d = new Date(today); d.setDate(d.getDate() - 1);
+      res.date = d.toISOString().slice(0, 10); toks[i].used = true; break;
+    }
+    if (w === 'προχθεσ' || w === 'προχτεσ') {
+      const d = new Date(today); d.setDate(d.getDate() - 2);
+      res.date = d.toISOString().slice(0, 10); toks[i].used = true; break;
+    }
+    // "15 Ιουλίου" ή "στις 15"
+    const n = _vNumAt(toks, i);
+    if (n && n.value >= 1 && n.value <= 31) {
+      const after = toks[i + n.consumed];
+      const before = i > 0 ? toks[i - 1].tok : '';
+      if (after && _GR_MONTHS[after.tok] != null) {
+        const m = _GR_MONTHS[after.tok];
+        let d = new Date(today.getFullYear(), m - 1, n.value);
+        if (d > today) d = new Date(today.getFullYear() - 1, m - 1, n.value);
+        res.date = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        _vMarkUsed(toks, i, n.consumed + 1);
+        break;
+      }
+      if (before === 'στισ') {
+        let d = new Date(today.getFullYear(), today.getMonth(), n.value);
+        if (d > today) d = new Date(today.getFullYear(), today.getMonth() - 1, n.value);
+        res.date = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        toks[i - 1].used = true;
+        _vMarkUsed(toks, i, n.consumed);
+        break;
+      }
+    }
+  }
+
+  // --- 2. Ποσό (με λεπτά: "5,50", "πέντε ευρώ και πενήντα", "πέντε κόμμα πέντε") ---
+  for (let i = 0; i < toks.length; i++) {
+    if (toks[i].used) continue;
+    const n = _vNumAt(toks, i);
+    if (!n) continue;
+    res.amount = n.value;
+    let end = i + n.consumed;
+    _vMarkUsed(toks, i, n.consumed);
+    if (toks[end] && !toks[end].used && (toks[end].tok === 'ευρω' || toks[end].tok === 'ευρο')) { toks[end].used = true; end++; }
+    if (toks[end] && !toks[end].used && (toks[end].tok === 'και' || toks[end].tok === 'κομμα')) {
+      const n2 = _vNumAt(toks, end + 1);
+      if (n2 && n2.value <= 99) {
+        if (toks[end].tok === 'κομμα') {
+          res.amount = parseFloat(String(n.value) + '.' + String(n2.value));
+        } else {
+          res.amount = n.value + n2.value / 100;
+        }
+        toks[end].used = true;
+        _vMarkUsed(toks, end + 1, n2.consumed);
+        let after = end + 1 + n2.consumed;
+        if (toks[after] && (toks[after].tok === 'λεπτα' || toks[after].tok === 'λεπτο' || toks[after].tok === 'ευρω')) toks[after].used = true;
+      }
+    }
+    break;
+  }
+
+  // --- 3. Τύπος (έσοδο / έξοδο) ---
+  toks.forEach(t => {
+    if (t.used) return;
+    if (_V_INCOME_WORDS.includes(t.tok)) { res.type = 'income'; t.used = true; }
+    else if (_V_EXPENSE_WORDS.includes(t.tok)) { if (!res.type) res.type = 'expense'; t.used = true; }
+  });
+  const typeExplicit = res.type !== null;
+  if (!res.type) res.type = 'expense';
+
+  // --- 4. Τρόπος πληρωμής ---
+  toks.forEach(t => {
+    if (t.used) return;
+    const w = t.tok;
+    if (w === 'μετρητα' || w === 'μετρητοισ' || w === 'cash') { res.method = 'cash'; t.used = true; }
+    else if (w === 'καρτα' || w === 'pos' || w === 'ποσ' || w === 'χρεωστικη' || w === 'πιστωτικη') { res.method = 'card'; t.used = true; }
+    else if (w === 'τραπεζα' || w === 'καταθεση' || w === 'εμβασμα' || w === 'μεταφορα' || w === 'ιρισ' || w === 'iris') { res.method = 'bank'; t.used = true; }
+  });
+
+  // --- 5. Τράπεζα / κάρτα με όνομα ---
+  if (state.banks.length > 0) {
+    let pool = state.banks;
+    if (res.method === 'card') pool = state.banks.filter(b => b.kind === 'card');
+    else if (res.method === 'bank') pool = state.banks.filter(b => b.kind !== 'card');
+    let bank = _vMatchName(toks, pool, false);
+    if (!bank && !res.method) bank = _vMatchName(toks, state.banks, false);
+    if (bank) {
+      res.bankId = bank.id;
+      res.method = bank.kind === 'card' ? 'card' : 'bank';
+    }
+  }
+
+  // --- 6. Επιχείρηση / Ταμείο ---
+  if (state.accounts.length > 1) {
+    const acc = _vMatchName(toks, state.accounts, false);
+    if (acc) res.accountId = acc.id;
+  }
+
+  // --- 7. Κατηγορία (χωρίς να "καίμε" τα tokens — μένουν για τη σημείωση) ---
+  const catToksSnapshot = toks.map(t => ({ tok: t.tok, used: t.used }));
+  let cat = _vMatchName(catToksSnapshot, state.categories[res.type] || [], true);
+  if (!cat && !typeExplicit) {
+    // δεν ειπώθηκε ρητά έσοδο/έξοδο — δοκίμασε και τις κατηγορίες του άλλου τύπου
+    const otherType = res.type === 'expense' ? 'income' : 'expense';
+    cat = _vMatchName(catToksSnapshot, state.categories[otherType] || [], true);
+    if (cat) res.type = otherType;
+  }
+  if (cat) {
+    res.categoryId = cat.id;
+    // μαρκάρουμε used μόνο όσα ταίριαξαν ακριβώς με το όνομα της κατηγορίας
+    catToksSnapshot.forEach((s, idx) => { if (s.used && !toks[idx].used && _vNorm(cat.name).includes(s.tok.slice(0, 4))) toks[idx].used = true; });
+  }
+
+  // --- 8. Σημείωση: ό,τι απέμεινε ---
+  res.note = toks
+    .filter(t => !t.used && t.tok && !_V_STOPWORDS.includes(t.tok))
+    .map(t => t.orig.replace(/[,.]$/, ''))
+    .join(' ')
+    .trim();
+
+  return res;
+}
+
+// Εφαρμόζει το αποτέλεσμα στη φόρμα και δείχνει σύνοψη για έλεγχο
+function applyVoiceResult(res, transcript) {
+  state.ui.editTx = null;
+  const f = state.form;
+  f.type = res.type;
+  if (res.amount != null && res.amount > 0) f.amount = String(Math.round(res.amount * 100) / 100);
+  if (res.accountId) f.accountId = res.accountId;
+  f.categoryId = res.categoryId || '';
+  f.date = res.date;
+  f.paymentMethod = res.method || 'cash';
+  f.bankId = res.bankId || '';
+  f.note = res.note || '';
+
+  const parts = [];
+  parts.push(res.type === 'income' ? '↓ Έσοδο' : '↑ Έξοδο');
+  if (res.amount != null && res.amount > 0) parts.push('Ποσό: ' + fmtMoney(res.amount));
+  else parts.push('⚠️ Δεν κατάλαβα το ποσό — συμπλήρωσέ το');
+  const cat = res.categoryId ? getCategory(res.type, res.categoryId) : null;
+  if (cat) parts.push('Κατηγορία: ' + cat.name);
+  const acc = res.accountId ? getAccount(res.accountId) : null;
+  if (acc) parts.push(acc.name);
+  if (res.date !== todayISO()) parts.push('Ημ/νία: ' + fmtDate(res.date));
+  const bank = res.bankId ? getBank(res.bankId) : null;
+  const methodLabels = { cash: 'Μετρητά', card: 'Κάρτα', bank: 'Τράπεζα' };
+  parts.push(methodLabels[res.method || 'cash'] + (bank ? ' (' + bank.name + ')' : ''));
+  if (res.note) parts.push('Σημ.: ' + res.note);
+
+  _voiceInfo = { transcript, parts };
+  state.ui.activeTab = 'add';
+  render();
+  if (navigator.vibrate) { try { navigator.vibrate(30); } catch (e) {} }
+}
+
+function _voiceCloseOverlay() {
+  const el = document.getElementById('voice-overlay');
+  if (el) el.remove();
+}
+
+function _voiceCancel() {
+  _voiceCancelled = true;
+  if (_voiceRec) { try { _voiceRec.abort(); } catch (e) {} }
+  _voiceCloseOverlay();
+}
+
+function startVoiceEntry() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showToast('Ο browser δεν υποστηρίζει φωνητική αναγνώριση'); return; }
+  _voiceCloseOverlay();
+  _voiceCancelled = false;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'voice-overlay';
+  overlay.id = 'voice-overlay';
+  overlay.innerHTML = `
+    <div class="voice-panel">
+      <div class="voice-mic-circle listening" id="voice-mic">${ICONS.mic}</div>
+      <div class="voice-status" id="voice-status">Σε ακούω…</div>
+      <div class="voice-transcript" id="voice-transcript"></div>
+      <div class="voice-hint">
+        π.χ. «25 ευρώ βενζίνη με μετρητά»<br>
+        «είσπραξη 150 ευρώ από πελάτη με κάρτα»<br>
+        «χθες 40 ευρώ ΔΕΗ από τράπεζα»
+      </div>
+      <button class="voice-cancel" id="voice-cancel-btn" type="button">Ακύρωση</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  document.getElementById('voice-cancel-btn').onclick = _voiceCancel;
+  overlay.onclick = e => { if (e.target === overlay) _voiceCancel(); };
+
+  const rec = new SR();
+  _voiceRec = rec;
+  rec.lang = 'el-GR';
+  rec.interimResults = true;
+  rec.maxAlternatives = 1;
+  rec.continuous = false;
+
+  let finalText = '';
+  rec.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalText += e.results[i][0].transcript + ' ';
+      else interim += e.results[i][0].transcript;
+    }
+    const el = document.getElementById('voice-transcript');
+    if (el) el.textContent = (finalText + interim).trim();
+  };
+  rec.onerror = e => {
+    _voiceRec = null;
+    _voiceCloseOverlay();
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') showToast('Δώσε άδεια χρήσης μικροφώνου στον browser');
+    else if (e.error === 'no-speech') showToast('Δεν άκουσα κάτι — δοκίμασε ξανά');
+    else if (e.error === 'network') showToast('Η αναγνώριση φωνής χρειάζεται σύνδεση στο internet');
+    else if (e.error !== 'aborted') showToast('Σφάλμα μικροφώνου (' + e.error + ')');
+  };
+  rec.onend = () => {
+    _voiceRec = null;
+    _voiceCloseOverlay();
+    if (_voiceCancelled) return;
+    const text = finalText.trim();
+    if (!text) return;
+    applyVoiceResult(parseVoiceCommand(text), text);
+  };
+
+  try { rec.start(); } catch (err) {
+    _voiceRec = null;
+    _voiceCloseOverlay();
+    showToast('Δεν ήταν δυνατή η εκκίνηση του μικροφώνου');
+  }
 }
 
 // ============ INIT ============
@@ -3316,7 +3792,7 @@ document.querySelectorAll('.nav-item[data-tab]').forEach(b => {
     if (b.dataset.tab === 'add' && !state.ui.editTx) {
       state.form = { type: state.form.type || 'expense', accountId: state.form.accountId, categoryId: '', amount: '', note: '', date: todayISO(), paymentMethod: 'cash', bankId: '' };
     }
-    if (b.dataset.tab !== 'add') state.ui.editTx = null;
+    if (b.dataset.tab !== 'add') { state.ui.editTx = null; _voiceInfo = null; }
     if (b.dataset.tab === 'transactions') {
       state.ui.searchQuery = '';
     }
